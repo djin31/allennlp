@@ -59,6 +59,7 @@ class SimpleTagger(Model):
                  label_encoding: Optional[str] = None,
                  label_namespace: str = "labels",
                  verbose_metrics: bool = False,
+                 dropout: Optional[float] = None,
                  initializer: InitializerApplicator = InitializerApplicator(),
                  regularizer: Optional[RegularizerApplicator] = None) -> None:
         super(SimpleTagger, self).__init__(vocab, regularizer)
@@ -91,6 +92,12 @@ class SimpleTagger(Model):
                                                  label_encoding=label_encoding)
         else:
             self._f1_metric = None
+
+        if dropout:
+            self.dropout = torch.nn.Dropout(dropout)
+        else:
+            self.dropout = None
+
 
         initializer(self)
 
@@ -132,9 +139,16 @@ class SimpleTagger(Model):
 
         """
         embedded_text_input = self.text_field_embedder(tokens)
+        if self.dropout:
+            embedded_text_input = self.dropout(embedded_text_input)
+
         batch_size, sequence_length, _ = embedded_text_input.size()
         mask = get_text_field_mask(tokens)
         encoded_text = self.encoder(embedded_text_input, mask)
+
+        if self.dropout:
+            encoded_text = self.dropout(encoded_text)
+
 
         logits = self.tag_projection_layer(encoded_text)
         reshaped_log_probs = logits.view(-1, self.num_classes)

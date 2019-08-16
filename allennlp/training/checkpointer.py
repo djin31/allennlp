@@ -48,7 +48,8 @@ class Checkpointer(Registrable):
                 logger.info("Best validation performance so far. "
                             "Copying weights to '%s/best.th'.", self._serialization_dir)
                 shutil.copyfile(model_path, os.path.join(self._serialization_dir, "best.th"))
-
+                shutil.copyfile(training_path, os.path.join(self._serialization_dir, "best_training_state.th"))
+                
             if self._num_serialized_models_to_keep is not None and self._num_serialized_models_to_keep >= 0:
                 self._serialized_paths.append((time.time(), model_path, training_path))
                 if len(self._serialized_paths) > self._num_serialized_models_to_keep:

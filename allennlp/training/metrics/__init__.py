@@ -22,6 +22,7 @@ from allennlp.training.metrics.pearson_correlation import PearsonCorrelation
 from allennlp.training.metrics.perplexity import Perplexity
 from allennlp.training.metrics.sequence_accuracy import SequenceAccuracy
 from allennlp.training.metrics.span_based_f1_measure import SpanBasedF1Measure
+from allennlp.training.metrics.decode_span_based_f1_measure import DecodeSpanBasedF1Measure
 from allennlp.training.metrics.squad_em_and_f1 import SquadEmAndF1
 from allennlp.training.metrics.srl_eval_scorer import SrlEvalScorer
 from allennlp.training.metrics.unigram_recall import UnigramRecall
