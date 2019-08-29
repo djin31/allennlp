@@ -24,13 +24,20 @@ class Checkpointer(Registrable):
     def __init__(self,
                  serialization_dir: str = None,
                  keep_serialized_model_every_num_seconds: int = None,
-                 num_serialized_models_to_keep: int = 20) -> None:
+                 num_serialized_models_to_keep: int = 20,
+                 save_intermediate_checkpoints: bool = False,
+                 checkpoint_interval: int = 50,
+                 checkpoint_log_begin: int = 100) -> None:
+
         self._serialization_dir = serialization_dir
         self._keep_serialized_model_every_num_seconds = keep_serialized_model_every_num_seconds
         self._num_serialized_models_to_keep = num_serialized_models_to_keep
 
         self._last_permanent_saved_checkpoint_time = time.time()
         self._serialized_paths: List[Tuple[float, str, str]] = []
+        self._save_intermediate_checkpoints = save_intermediate_checkpoints
+        self._checkpoint_interval = checkpoint_interval
+        self._checkpoint_begin = checkpoint_log_begin
 
     def save_checkpoint(self,
                         epoch: Union[int, str],
@@ -49,7 +56,12 @@ class Checkpointer(Registrable):
                             "Copying weights to '%s/best.th'.", self._serialization_dir)
                 shutil.copyfile(model_path, os.path.join(self._serialization_dir, "best.th"))
                 shutil.copyfile(training_path, os.path.join(self._serialization_dir, "best_training_state.th"))
-                
+            
+            # Start saving checkpoint models after checkpoint_begin after every checkpoint_interval
+            if (self._save_intermediate_checkpoints) and (epoch >= self._checkpoint_begin) and (epoch%self._checkpoint_interval == 0):
+                shutil.copyfile(model_path, os.path.join(self._serialization_dir, "model_epoch_"+str(epoch)+".th"))
+                shutil.copyfile(training_path, os.path.join(self._serialization_dir, "training_state_epoch"+str(epoch)+".th"))
+
             if self._num_serialized_models_to_keep is not None and self._num_serialized_models_to_keep >= 0:
                 self._serialized_paths.append((time.time(), model_path, training_path))
                 if len(self._serialized_paths) > self._num_serialized_models_to_keep:
