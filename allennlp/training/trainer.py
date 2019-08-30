@@ -6,6 +6,7 @@ import time
 import datetime
 import traceback
 from typing import Dict, Optional, List, Tuple, Union, Iterable, Any
+from IPython.core.debugger import Pdb
 
 import torch
 import torch.optim.lr_scheduler
@@ -205,7 +206,7 @@ class Trainer(TrainerBase):
         self._validation_metric = validation_metric[1:]
 
         self._num_epochs = num_epochs
-
+        # Pdb().set_trace()
         if checkpointer is not None:
             # We can't easily check if these parameters were passed in, so check against their default values.
             # We don't check against serialization_dir since it is also used by the parent class.
@@ -215,6 +216,9 @@ class Trainer(TrainerBase):
                         "When passing a custom Checkpointer, you may not also pass in separate checkpointer "
                         "args 'num_serialized_models_to_keep' or 'keep_serialized_model_every_num_seconds'.")
             self._checkpointer = checkpointer
+            self._checkpointer._save_intermediate_checkpoints = save_intermediate_checkpoints
+            self._checkpointer._checkpoint_interval = checkpoint_interval
+            self._checkpointer._checkpoint_begin = checkpoint_log_begin 
         else:
             self._checkpointer = Checkpointer(serialization_dir,
                                               keep_serialized_model_every_num_seconds,
@@ -731,6 +735,9 @@ class Trainer(TrainerBase):
         should_log_parameter_statistics = params.pop_bool("should_log_parameter_statistics", True)
         should_log_learning_rate = params.pop_bool("should_log_learning_rate", False)
         log_batch_size_period = params.pop_int("log_batch_size_period", None)
+        save_intermediate_checkpoints = params.pop_bool("save_intermediate_checkpoints", False)
+        checkpoint_log_begin = params.pop_int("checkpoint_log_begin",100)
+        checkpoint_interval = params.pop_int("checkpoint_interval",50)
 
         params.assert_empty(cls.__name__)
         return cls(model, optimizer, iterator,
@@ -753,4 +760,7 @@ class Trainer(TrainerBase):
                    should_log_parameter_statistics=should_log_parameter_statistics,
                    should_log_learning_rate=should_log_learning_rate,
                    log_batch_size_period=log_batch_size_period,
-                   moving_average=moving_average)
+                   moving_average=moving_average,
+                   save_intermediate_checkpoints=save_intermediate_checkpoints,
+                   checkpoint_interval=checkpoint_interval,
+                   checkpoint_log_begin=checkpoint_log_begin)

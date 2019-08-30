@@ -5,6 +5,7 @@ import os
 import re
 import shutil
 import time
+from IPython.core.debugger import Pdb
 
 import torch
 
@@ -50,7 +51,7 @@ class Checkpointer(Registrable):
             training_path = os.path.join(self._serialization_dir,
                                          "training_state_epoch_{}.th".format(epoch))
             torch.save({**training_states, "epoch": epoch}, training_path)
-
+            # Pdb().set_trace()
             if is_best_so_far:
                 logger.info("Best validation performance so far. "
                             "Copying weights to '%s/best.th'.", self._serialization_dir)
@@ -60,7 +61,7 @@ class Checkpointer(Registrable):
             # Start saving checkpoint models after checkpoint_begin after every checkpoint_interval
             if (self._save_intermediate_checkpoints) and (epoch >= self._checkpoint_begin) and (epoch%self._checkpoint_interval == 0):
                 shutil.copyfile(model_path, os.path.join(self._serialization_dir, "model_epoch_"+str(epoch)+".cpoint"))
-                shutil.copyfile(training_path, os.path.join(self._serialization_dir, "training_state_epoch"+str(epoch)+".cpoint"))
+                shutil.copyfile(training_path, os.path.join(self._serialization_dir, "training_state_epoch_"+str(epoch)+".cpoint"))
 
             if self._num_serialized_models_to_keep is not None and self._num_serialized_models_to_keep >= 0:
                 self._serialized_paths.append((time.time(), model_path, training_path))
