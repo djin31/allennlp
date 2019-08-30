@@ -135,8 +135,8 @@ class DatasetReader(Registrable):
 
             # commenting so that empty dataset readers is also a possibility - unlabelled data vanishes when all is used for training. Dont want to handle explicitly
             # if not instances:
-                raise ConfigurationError("No instances were read from the given filepath {}. "
-                                         "Is the path correct?".format(file_path))
+            #    raise ConfigurationError("No instances were read from the given filepath {}. "
+            #                             "Is the path correct?".format(file_path))
 
             # And finally we write to the cache if we need to.
             if cache_file and not os.path.exists(cache_file):

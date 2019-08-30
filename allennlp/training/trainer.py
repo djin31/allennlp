@@ -60,7 +60,10 @@ class Trainer(TrainerBase):
                  should_log_parameter_statistics: bool = True,
                  should_log_learning_rate: bool = False,
                  log_batch_size_period: Optional[int] = None,
-                 moving_average: Optional[MovingAverage] = None) -> None:
+                 moving_average: Optional[MovingAverage] = None,
+                 save_intermediate_checkpoints: bool = False,
+                 checkpoint_interval: int = 50,
+                 checkpoint_log_begin: int = 100) -> None:
         """
         A trainer for doing supervised learning. It just takes a labeled dataset
         and a ``DataIterator``, and uses the supplied ``Optimizer`` to learn the weights
@@ -171,6 +174,9 @@ class Trainer(TrainerBase):
             parameters. Be careful that when saving the checkpoint, we will save the moving averages of
             parameters. This is necessary because we want the saved model to perform as well as the validated
             model if we load it later. But this may cause problems if you restart the training from checkpoint.
+        save_intermediate_checkpoints: ``bool`` optional, (default = ``False``),
+        checkpoint_interval: ``int`` optional, (default = ``50``),
+        checkpoint_log_begin: ``int`` optional, (default = ``100``),
         """
         super().__init__(serialization_dir, cuda_device)
 
@@ -212,7 +218,10 @@ class Trainer(TrainerBase):
         else:
             self._checkpointer = Checkpointer(serialization_dir,
                                               keep_serialized_model_every_num_seconds,
-                                              num_serialized_models_to_keep)
+                                              num_serialized_models_to_keep,
+                                              save_intermediate_checkpoints,
+                                              checkpoint_interval,
+                                              checkpoint_log_begin)
 
         self._model_save_interval = model_save_interval
 
