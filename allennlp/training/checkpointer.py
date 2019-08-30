@@ -59,8 +59,8 @@ class Checkpointer(Registrable):
             
             # Start saving checkpoint models after checkpoint_begin after every checkpoint_interval
             if (self._save_intermediate_checkpoints) and (epoch >= self._checkpoint_begin) and (epoch%self._checkpoint_interval == 0):
-                shutil.copyfile(model_path, os.path.join(self._serialization_dir, "model_epoch_"+str(epoch)+".th"))
-                shutil.copyfile(training_path, os.path.join(self._serialization_dir, "training_state_epoch"+str(epoch)+".th"))
+                shutil.copyfile(model_path, os.path.join(self._serialization_dir, "model_epoch_"+str(epoch)+".cpoint"))
+                shutil.copyfile(training_path, os.path.join(self._serialization_dir, "training_state_epoch"+str(epoch)+".cpoint"))
 
             if self._num_serialized_models_to_keep is not None and self._num_serialized_models_to_keep >= 0:
                 self._serialized_paths.append((time.time(), model_path, training_path))
