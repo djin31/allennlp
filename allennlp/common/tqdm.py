@@ -4,6 +4,7 @@ global defaults for certain tqdm parameters.
 """
 
 from tqdm import tqdm as _tqdm
+import sys
 # This is neccesary to stop tqdm from hanging
 # when exceptions are raised inside iterators.
 # It should have been fixed in 4.2.1, but it still
@@ -36,6 +37,7 @@ class Tqdm:
     @staticmethod
     def tqdm(*args, **kwargs):
         new_kwargs = {
+                'file' : sys.stdout,
                 'mininterval': Tqdm.default_mininterval,
                 **kwargs
         }
